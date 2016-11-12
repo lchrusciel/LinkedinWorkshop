@@ -49,10 +49,25 @@ class Neo4jUserRepository implements UserRepository
         foreach ($result->getRecords() as $record) {
             /** @var Node $recordValue */
             $recordValue = $record->valueByIndex(0);
-            $users[] = new User($recordValue->get('firstName'), $recordValue->get('lastName'));
+            $users[] = new User($recordValue->get('uuid'), $recordValue->get('firstName'), $recordValue->get('lastName'));
         }
 
         return $users;
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return User
+     */
+    public function find($uuid)
+    {
+        /** @var Result $result */
+        $result = $this->client->run('MATCH (n:User {uuid: {uuid}}) RETURN n', ['uuid' => $uuid]);
+
+        $recordValue = $result->getRecord()->valueByIndex(0);
+
+        return new User($recordValue->get('uuid'), $recordValue->get('firstName'), $recordValue->get('lastName'));
     }
 
     /**
@@ -60,9 +75,9 @@ class Neo4jUserRepository implements UserRepository
      *
      * @throws \GraphAware\Neo4j\Client\Exception\Neo4jExceptionInterface
      */
-    public function delete(User $user)
+    public function delete($uuid)
     {
         /** @var Result $result */
-        $this->client->run('MATCH (n:User {firstName: {firstName}, lastName: {lastName}}) DELETE n', $user->convertToArray());
+        $this->client->run('MATCH (n:User {uuid: {uuid}}) DELETE n', ['uuid' => $uuid]);
     }
 }

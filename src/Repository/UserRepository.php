@@ -20,7 +20,12 @@ interface UserRepository
     public function findAll();
 
     /**
-     * @param User $user
+     * @param string $uuid
      */
-    public function delete(User $user);
+    public function find($uuid);
+
+    /**
+     * @param string $uuid
+     */
+    public function delete($uuid);
 }

@@ -5,6 +5,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Model\User;
+use App\Model\Competence;
 use App\Repository\Neo4jUserRepository;
 use App\Repository\Neo4jCompetenceRepository;
 use App\Repository\Neo4jUserCompetenceRepository;
@@ -66,6 +67,35 @@ $app->post('/users/', function (Request $request) use ($app) {
 
 $app->delete('/users/', function (Request $request) use ($app) {
     $app['user_repository']->delete($request->request->get('uuid'));
+
+    return $app->json([], Response::HTTP_NO_CONTENT);
+});
+
+$app->get('/competences/{uuid}', function (Request $request) use ($app) {
+    return $app->json($app['competence_repository']->find($request->attributes->get('uuid')));
+});
+
+$app->get('/competences/', function () use ($app) {
+    /** @var UserRepository $competenceRepository */
+    $competenceRepository = $app['competence_repository'];
+
+    $competences = $competenceRepository->findAll();
+
+    return $app->json($competences);
+});
+
+$app->post('/competences/', function (Request $request) use ($app) {
+    /** @var CompetenceRepository $competenceRepository */
+    $competenceRepository = $app['competence_repository'];
+    $competence = new Competence(Uuid::uuid4(), $request->request->get('name'));
+
+    $competenceRepository->add($competence);
+
+    return $app->json($competence, Response::HTTP_CREATED);
+});
+
+$app->delete('/competences/', function (Request $request) use ($app) {
+    $app['competence_repository']->delete($request->request->get('uuid'));
 
     return $app->json([], Response::HTTP_NO_CONTENT);
 });

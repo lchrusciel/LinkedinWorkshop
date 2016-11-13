@@ -32,7 +32,7 @@ final class Neo4jCompetenceRepository implements CompetenceRepository
      */
     public function add(Competence $competence)
     {
-        $this->client->run('CREATE (n:Competence) SET n += {data}', ['data' => $competence->convertToArray()]);
+        $this->client->run('CREATE (n:Competence) SET n += {data}', ['data' => $competence->getNeoArrayOfValues()]);
     }
 
     /**

@@ -5,7 +5,7 @@ namespace App\Model;
 /**
  * @author Łukasz Chruściel <lchrusciel@gmail.com>
  */
-interface Node
+interface Node extends NeoArrayOfValuesProvider
 {
     /**
      * @return array

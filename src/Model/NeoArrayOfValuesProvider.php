@@ -5,10 +5,10 @@ namespace App\Model;
 /**
  * @author Łukasz Chruściel <lchrusciel@gmail.com>
  */
-interface Arrayable
+interface NeoArrayOfValuesProvider
 {
     /**
      * @return array
      */
-    public function convertToArray();
+    public function getNeoArrayOfValues();
 }

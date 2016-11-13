@@ -32,7 +32,7 @@ class Neo4jUserRepository implements UserRepository
      */
     public function add(User $user)
     {
-        $this->client->run('CREATE (n:User) SET n += {data}', ['data' => $user->convertToArray()]);
+        $this->client->run('CREATE (n:User) SET n += {data}', ['data' => $user->getNeoArrayOfValues()]);
     }
 
     /**

@@ -5,7 +5,7 @@ namespace App\Model;
 /**
  * @author Łukasz Chruściel <lchrusciel@gmail.com>
  */
-final class Competence implements \JsonSerializable, Arrayable
+final class Competence implements \JsonSerializable, Arrayable, Node
 {
     /**
      * @var string
@@ -33,14 +33,6 @@ final class Competence implements \JsonSerializable, Arrayable
     public function getUuid()
     {
         return $this->uuid;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     public function convertToArray()

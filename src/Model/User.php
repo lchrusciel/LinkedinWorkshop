@@ -5,7 +5,7 @@ namespace App\Model;
 /**
  * @author Łukasz Chruściel <lchrusciel@gmail.com>
  */
-final class User implements \JsonSerializable, Arrayable
+final class User implements \JsonSerializable, Arrayable, Node
 {
     /**
      * @var string
@@ -40,22 +40,6 @@ final class User implements \JsonSerializable, Arrayable
     public function getUuid()
     {
         return $this->uuid;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFirstName()
-    {
-        return $this->firstName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastName()
-    {
-        return $this->lastName;
     }
 
     public function convertToArray()

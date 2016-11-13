@@ -10,10 +10,8 @@ use App\Model\Knows;
 use App\Model\Competence;
 use App\Repository\Neo4jUserRepository;
 use App\Repository\Neo4jCompetenceRepository;
-use App\Repository\Neo4jUserCompetenceRepository;
 use App\Repository\UserRepository;
 use App\Repository\CompetenceRepository;
-use App\Repository\UserCompetenceRepository;
 use App\Repository\RelationRepository;
 use App\Repository\Neo4jRelationRepository;
 use Ramsey\Uuid\Uuid;
@@ -32,10 +30,7 @@ $app['user_repository'] = function () use ($app) {
 $app['competence_repository'] = function () use ($app) {
     return new Neo4jCompetenceRepository($app['neo4j-client']);
 };
-$app['user_competence_repository'] = function () use ($app) {
-    return new Neo4jUserCompetenceRepository($app['neo4j-client']);
-};
-$app['user_relationships_repository'] = function () use ($app) {
+$app['relationships_repository'] = function () use ($app) {
     return new Neo4jRelationRepository($app['neo4j-client']);
 };
 
@@ -103,19 +98,31 @@ $app->delete('/competences/', function (Request $request) use ($app) {
 });
 
 $app->post('/knows/', function (Request $request) use ($app) {
-    /** @var RelationRepository $userRelationshipsRepository */
-    $userRelationshipsRepository = $app['user_relationships_repository'];
+    /** @var RelationRepository $relationshipsRepository */
+    $relationshipsRepository = $app['relationships_repository'];
+    /** @var UserRepository $userRepository */
+    $userRepository = $app['user_repository'];
+    /** @var CompetenceRepository $competenceRepository */
+    $competenceRepository = $app['competence_repository'];
 
-    $userRelationshipsRepository->connect(new Knows($request->request->get('first-uuid'), $request->request->get('second-uuid')));
+    $user = $userRepository->find($request->request->get('user'));
+    $competence = $competenceRepository->find($request->request->get('competence'));
+
+    $relationshipsRepository->connect(new Knows($user, $competence));
 
     return $app->json([], Response::HTTP_CREATED);
 });
 
 $app->post('/friends/', function (Request $request) use ($app) {
-    /** @var RelationRepository $userRelationshipsRepository */
-    $userRelationshipsRepository = $app['user_relationships_repository'];
+    /** @var RelationRepository $relationshipsRepository */
+    $relationshipsRepository = $app['relationships_repository'];
+    /** @var UserRepository $userRepository */
+    $userRepository = $app['user_repository'];
 
-    $userRelationshipsRepository->connect(new Friends($request->request->get('first-uuid'), $request->request->get('second-uuid')));
+    $user1 = $userRepository->find($request->request->get('user1'));
+    $user2 = $userRepository->find($request->request->get('user2'));
+
+    $relationshipsRepository->connect(new Friends($user1, $user2));
 
     return $app->json([], Response::HTTP_CREATED);
 });

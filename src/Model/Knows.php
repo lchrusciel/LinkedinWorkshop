@@ -26,7 +26,7 @@ final class Knows implements \JsonSerializable, NeoArrayOfValuesProvider, Relati
      * @param User $firstUser
      * @param Competence $secondUser
      */
-    public function __construct($firstUser, $secondUser)
+    public function __construct(User $firstUser, Competence $secondUser)
     {
         $this->n = $firstUser;
         $this->m = $secondUser;
@@ -51,8 +51,8 @@ final class Knows implements \JsonSerializable, NeoArrayOfValuesProvider, Relati
     public function getNeoArrayOfValues()
     {
         return [
-            'nuuid' => $this->n,
-            'muuid' => $this->m,
+            'nuuid' => $this->n->getUuid(),
+            'muuid' => $this->m->getUuid(),
         ];
     }
 

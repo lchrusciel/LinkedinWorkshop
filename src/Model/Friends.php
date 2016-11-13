@@ -23,13 +23,13 @@ final class Friends implements \JsonSerializable, NeoArrayOfValuesProvider, Rela
     private $m;
 
     /**
-     * @param User $firstUser
-     * @param User $secondUser
+     * @param User $n
+     * @param User $m
      */
-    public function __construct($firstUser, $secondUser)
+    public function __construct(User $n, User $m)
     {
-        $this->n = $firstUser;
-        $this->m = $secondUser;
+        $this->n = $n;
+        $this->m = $m;
     }
 
     /**
@@ -54,8 +54,8 @@ final class Friends implements \JsonSerializable, NeoArrayOfValuesProvider, Rela
     public function getNeoArrayOfValues()
     {
         return [
-            'nuuid' => $this->n,
-            'muuid' => $this->m,
+            'nuuid' => $this->n->getUuid(),
+            'muuid' => $this->m->getUuid(),
         ];
     }
 

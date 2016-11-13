@@ -5,6 +5,8 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Model\User;
+use App\Model\Friends;
+use App\Model\Knows;
 use App\Model\Competence;
 use App\Repository\Neo4jUserRepository;
 use App\Repository\Neo4jCompetenceRepository;
@@ -12,8 +14,8 @@ use App\Repository\Neo4jUserCompetenceRepository;
 use App\Repository\UserRepository;
 use App\Repository\CompetenceRepository;
 use App\Repository\UserCompetenceRepository;
-use App\Repository\UserRelationshipsRepository;
-use App\Repository\Neo4jUserRelationshipsRepository;
+use App\Repository\RelationRepository;
+use App\Repository\Neo4jRelationRepository;
 use Ramsey\Uuid\Uuid;
 
 $app = new Application(['debug' => true]);
@@ -34,7 +36,7 @@ $app['user_competence_repository'] = function () use ($app) {
     return new Neo4jUserCompetenceRepository($app['neo4j-client']);
 };
 $app['user_relationships_repository'] = function () use ($app) {
-    return new Neo4jUserRelationshipsRepository($app['neo4j-client']);
+    return new Neo4jRelationRepository($app['neo4j-client']);
 };
 
 $app->before(function (Request $request) {
@@ -98,6 +100,24 @@ $app->delete('/competences/', function (Request $request) use ($app) {
     $app['competence_repository']->delete($request->request->get('uuid'));
 
     return $app->json([], Response::HTTP_NO_CONTENT);
+});
+
+$app->post('/knows/', function (Request $request) use ($app) {
+    /** @var RelationRepository $userRelationshipsRepository */
+    $userRelationshipsRepository = $app['user_relationships_repository'];
+
+    $userRelationshipsRepository->connect(new Knows($request->request->get('first-uuid'), $request->request->get('second-uuid')));
+
+    return $app->json([], Response::HTTP_CREATED);
+});
+
+$app->post('/friends/', function (Request $request) use ($app) {
+    /** @var RelationRepository $userRelationshipsRepository */
+    $userRelationshipsRepository = $app['user_relationships_repository'];
+
+    $userRelationshipsRepository->connect(new Friends($request->request->get('first-uuid'), $request->request->get('second-uuid')));
+
+    return $app->json([], Response::HTTP_CREATED);
 });
 
 return $app;

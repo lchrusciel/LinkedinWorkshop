@@ -129,7 +129,24 @@ $app->post('/friends/', function (Request $request) use ($app) {
     $user1 = $userRepository->find($request->request->get('user1'));
     $user2 = $userRepository->find($request->request->get('user2'));
 
-    $query = new \App\Query\UsersFriendshipQuery($user1, $user2);
+    $query = new \App\Query\UsersAddFriendshipQuery($user1, $user2);
+
+    $queryRunner->run($query);
+
+    return $app->json([], Response::HTTP_CREATED);
+});
+
+
+$app->delete('/friends/', function (Request $request) use ($app) {
+    /** @var QueryRunner $queryRunner */
+    $queryRunner = $app['query_runner'];
+    /** @var UserRepository $userRepository */
+    $userRepository = $app['user_repository'];
+
+    $user1 = $userRepository->find($request->request->get('user1'));
+    $user2 = $userRepository->find($request->request->get('user2'));
+
+    $query = new \App\Query\UsersRemoveFriendshipQuery($user1, $user2);
 
     $queryRunner->run($query);
 

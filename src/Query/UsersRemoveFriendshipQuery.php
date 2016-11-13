@@ -7,7 +7,7 @@ use App\Model\User;
 /**
  * @author Łukasz Chruściel <lchrusciel@gmail.com>
  */
-final class UsersFriendshipQuery implements Query
+final class UsersRemoveFriendshipQuery implements Query
 {
     /**
      * @var User
@@ -34,7 +34,7 @@ final class UsersFriendshipQuery implements Query
      */
     public function getQuery()
     {
-        return 'Match (n:User {uuid: {firstUserUuid}}) Match (m:User {uuid: {secondUserUuid}}) CREATE (n)-[r:FRIENDS]->(m)';
+        return 'Match (n:User {uuid: {firstUserUuid}}) - [r:FRIENDS] - (m:User {uuid: {secondUserUuid}}) DELETE r';
     }
 
     /**

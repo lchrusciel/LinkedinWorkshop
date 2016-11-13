@@ -5,15 +5,10 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Model\User;
-use App\Model\Friends;
-use App\Model\Knows;
 use App\Model\Competence;
-use App\Repository\Neo4jUserRepository;
-use App\Repository\Neo4jCompetenceRepository;
 use App\Repository\UserRepository;
 use App\Repository\CompetenceRepository;
-use App\Repository\RelationRepository;
-use App\Repository\Neo4jRelationRepository;
+use App\Runner\QueryRunner;
 use Ramsey\Uuid\Uuid;
 
 $app = new Application(['debug' => true]);
@@ -25,13 +20,13 @@ $app['neo4j-client'] = function ($app) {
         ->build();
 };
 $app['user_repository'] = function () use ($app) {
-    return new Neo4jUserRepository($app['neo4j-client']);
+    return new \App\Repository\Neo4jUserRepository($app['neo4j-client']);
 };
 $app['competence_repository'] = function () use ($app) {
-    return new Neo4jCompetenceRepository($app['neo4j-client']);
+    return new \App\Repository\Neo4jCompetenceRepository($app['neo4j-client']);
 };
-$app['relationships_repository'] = function () use ($app) {
-    return new Neo4jRelationRepository($app['neo4j-client']);
+$app['query_runner'] = function () use ($app) {
+    return new \App\Runner\Neo4jQueryRunner($app['neo4j-client']);
 };
 
 $app->before(function (Request $request) {
@@ -98,31 +93,45 @@ $app->delete('/competences/', function (Request $request) use ($app) {
 });
 
 $app->post('/knows/', function (Request $request) use ($app) {
-    /** @var RelationRepository $relationshipsRepository */
-    $relationshipsRepository = $app['relationships_repository'];
-    /** @var UserRepository $userRepository */
-    $userRepository = $app['user_repository'];
-    /** @var CompetenceRepository $competenceRepository */
-    $competenceRepository = $app['competence_repository'];
+    /** @var QueryRunner $queryRunner */
+    $queryRunner = $app['query_runner'];
 
-    $user = $userRepository->find($request->request->get('user'));
-    $competence = $competenceRepository->find($request->request->get('competence'));
+    $user = $app['user_repository']->find($request->request->get('user'));
+    $competence = $app['competence_repository']->find($request->request->get('competence'));
 
-    $relationshipsRepository->connect(new Knows($user, $competence));
+    $query = new \App\Query\UserAddCompetenceQuery($user, $competence);
+
+    $queryRunner->run($query);
+
+    return $app->json([], Response::HTTP_CREATED);
+});
+
+$app->delete('/knows/', function (Request $request) use ($app) {
+    /** @var QueryRunner $queryRunner */
+    $queryRunner = $app['query_runner'];
+
+    $user = $app['user_repository']->find($request->request->get('user'));
+    $competence = $app['competence_repository']->find($request->request->get('competence'));
+
+    $query = new \App\Query\UserRemoveCompetenceQuery($user, $competence);
+
+    $queryRunner->run($query);
 
     return $app->json([], Response::HTTP_CREATED);
 });
 
 $app->post('/friends/', function (Request $request) use ($app) {
-    /** @var RelationRepository $relationshipsRepository */
-    $relationshipsRepository = $app['relationships_repository'];
+    /** @var QueryRunner $queryRunner */
+    $queryRunner = $app['query_runner'];
     /** @var UserRepository $userRepository */
     $userRepository = $app['user_repository'];
 
     $user1 = $userRepository->find($request->request->get('user1'));
     $user2 = $userRepository->find($request->request->get('user2'));
 
-    $relationshipsRepository->connect(new Friends($user1, $user2));
+    $query = new \App\Query\UsersFriendshipQuery($user1, $user2);
+
+    $queryRunner->run($query);
 
     return $app->json([], Response::HTTP_CREATED);
 });

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Repository;
+namespace App\Runner;
 
-use App\Model\Relation;
+use App\Query\Query;
 use GraphAware\Neo4j\Client\Client;
 
 /**
  * @author Łukasz Chruściel <lchrusciel@gmail.com>
  */
-class Neo4jRelationRepository implements RelationRepository
+class Neo4jQueryRunner implements QueryRunner
 {
     /**
      * @var Client
@@ -28,10 +28,8 @@ class Neo4jRelationRepository implements RelationRepository
      *
      * @throws \GraphAware\Neo4j\Client\Exception\Neo4jExceptionInterface
      */
-    public function connect(Relation $relation)
+    public function run(Query $query)
     {
-        $this->client->run(
-            'Match (n {uuid: {nuuid}}) Match (m {uuid: {muuid}}) ' . $relation->getRelation(), $relation->getNeoArrayOfValues()
-        );
+        $this->client->run($query->getQuery(), $query->getQueryParameters());
     }
 }
